@@ -42,4 +42,25 @@ def create_tables():
                 changed_at TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP
             )
         """)
+        connection.execute("""
+            CREATE TABLE IF NOT EXISTS zones (
+                zone_id    INTEGER PRIMARY KEY AUTOINCREMENT,
+                zone_code  TEXT    NOT NULL UNIQUE COLLATE NOCASE,
+                name       TEXT    NOT NULL,
+                zone_type  TEXT    NOT NULL,
+                created_at TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        connection.execute("""
+            CREATE TABLE IF NOT EXISTS storage_bins (
+                bin_id     INTEGER PRIMARY KEY AUTOINCREMENT,
+                zone_id    INTEGER NOT NULL REFERENCES zones (zone_id),
+                bin_code   TEXT    NOT NULL UNIQUE COLLATE NOCASE,
+                rack       INTEGER NOT NULL CHECK (rack BETWEEN 1 AND 99),
+                level      INTEGER NOT NULL CHECK (level BETWEEN 1 AND 99),
+                is_blocked INTEGER NOT NULL DEFAULT 0,
+                created_at TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE (zone_id, rack, level)
+            )
+        """)
     connection.close()
