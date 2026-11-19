@@ -112,3 +112,57 @@ def list_products(search_text=""):
     finally:
         connection.close()
     return [dict(row) for row in rows]
+
+
+def get_product(product_id):
+    """Return one product as a dictionary, or None if it does not exist."""
+    connection = get_connection()
+    try:
+        row = connection.execute(
+            """
+            SELECT product_id, name, category, unit_of_measure, unit_cost,
+                   supplier_name, lead_time_days, created_at, updated_at
+            FROM products
+            WHERE product_id = ?
+            """,
+            (product_id,),
+        ).fetchone()
+    finally:
+        connection.close()
+    return dict(row) if row else None
+
+
+def update_product(product_id, name, category, unit_of_measure, unit_cost,
+                   supplier_name, lead_time_days):
+    """Validate and save changes to an existing product."""
+    errors = validate_product(name, category, unit_of_measure, unit_cost,
+                              supplier_name, lead_time_days)
+    if errors:
+        raise ValueError(" ".join(errors))
+
+    connection = get_connection()
+    try:
+        with connection:
+            cursor = connection.execute(
+                """
+                UPDATE products
+                SET name = ?,
+                    category = ?,
+                    unit_of_measure = ?,
+                    unit_cost = ?,
+                    supplier_name = ?,
+                    lead_time_days = ?,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE product_id = ?
+                """,
+                (name.strip(), category, unit_of_measure, round(unit_cost, 2),
+                 supplier_name.strip(), lead_time_days, product_id),
+            )
+        if cursor.rowcount == 0:
+            raise ValueError(f"Product {format_product_id(product_id)} does not exist.")
+    except sqlite3.IntegrityError as error:
+        if "UNIQUE" in str(error):
+            raise ValueError(f"A product named '{name.strip()}' already exists.")
+        raise
+    finally:
+        connection.close()

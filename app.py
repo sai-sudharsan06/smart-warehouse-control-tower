@@ -8,7 +8,9 @@ from warehouse.products import (
     UNITS_OF_MEASURE,
     add_product,
     format_product_id,
+    get_product,
     list_products,
+    update_product,
 )
 
 st.set_page_config(page_title="Smart Warehouse Control Tower", layout="wide")
@@ -43,6 +45,60 @@ if submitted:
     except ValueError as error:
         st.error(str(error))
 
+# ---- Edit an existing product ----
+st.subheader("Edit a product")
+all_products = list_products()
+
+if all_products:
+    labels = {
+        p["product_id"]: f"{format_product_id(p['product_id'])} | {p['name']}"
+        for p in all_products
+    }
+    selected_id = st.selectbox(
+        "Product to edit", list(labels), format_func=labels.get, key="edit_select"
+    )
+    product = get_product(selected_id)
+
+    with st.form("edit_product_form"):
+        edit_name = st.text_input(
+            "Product name", value=product["name"], key=f"edit_name_{selected_id}"
+        )
+        edit_category = st.selectbox(
+            "Category", CATEGORIES,
+            index=CATEGORIES.index(product["category"]),
+            key=f"edit_category_{selected_id}",
+        )
+        edit_uom = st.selectbox(
+            "Unit of measure", UNITS_OF_MEASURE,
+            index=UNITS_OF_MEASURE.index(product["unit_of_measure"]),
+            key=f"edit_uom_{selected_id}",
+        )
+        edit_cost = st.number_input(
+            "Unit cost (EUR)", min_value=0.0, step=0.01, format="%.2f",
+            value=product["unit_cost"], key=f"edit_cost_{selected_id}",
+        )
+        edit_supplier = st.text_input(
+            "Supplier name", value=product["supplier_name"],
+            key=f"edit_supplier_{selected_id}",
+        )
+        edit_lead_time = st.number_input(
+            "Lead time (days)", min_value=0, max_value=MAX_LEAD_TIME_DAYS, step=1,
+            value=product["lead_time_days"], key=f"edit_lead_time_{selected_id}",
+        )
+        saved = st.form_submit_button("Save changes", key="save_edit")
+
+    if saved:
+        try:
+            update_product(
+                selected_id, edit_name, edit_category, edit_uom,
+                edit_cost, edit_supplier, edit_lead_time,
+            )
+            st.success(f"Product {format_product_id(selected_id)} updated.")
+        except ValueError as error:
+            st.error(str(error))
+else:
+    st.info("Register a product first, then you can edit it here.")
+
 # ---- List all products ----
 st.subheader("Registered products")
 search_text = st.text_input(
@@ -62,6 +118,7 @@ if products:
         "supplier_name": "Supplier",
         "lead_time_days": "Lead time (days)",
         "created_at": "Created (UTC)",
+        "updated_at": "Last updated (UTC)",
     })
     st.dataframe(table, hide_index=True)
 elif search_text.strip():
