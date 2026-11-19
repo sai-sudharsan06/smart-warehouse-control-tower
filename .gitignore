@@ -12,3 +12,4 @@ data/*.db
 # Editor / OS files
 .vscode/
 Thumbs.db
+*.bkp
