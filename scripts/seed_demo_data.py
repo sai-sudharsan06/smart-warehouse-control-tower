@@ -190,8 +190,12 @@ def main():
                         cancel_order(order["order_id"], USERS["release"],
                                      "Customer cancelled: delivery too late (simulated)")
 
-            # 5. Pick and ship everything released
-            for order in list_orders(status="Released"):
+            # 5. Pick and ship orders released on an earlier day, urgent first
+            #    (list order), limited by the picking capacity of the day
+            capacity = rng.randint(4, 6)
+            ready = [o for o in list_orders(status="Released")
+                     if date.fromisoformat(o["released_at"][:10]) < day]
+            for order in ready[:capacity]:
                 try:
                     create_pick_list(order["order_id"], USERS["pick"])
                     confirm_picking(order["order_id"], shipping_bin, USERS["pick"])
@@ -199,14 +203,14 @@ def main():
                 except ValueError as error:
                     print(f"  {day}: could not pick SO {order['order_id']}: {error}")
 
-            # 6. Simulated purchasing: reorder at about lead time x 1.4 of demand
+            # 6. Simulated purchasing: reorder at about lead time x 1.25 of demand
             for pid in product_ids:
                 if pid in on_order:
                     continue
                 weekly, lead_days = spec[pid][6], spec[pid][5]
                 unrestricted = sum(r["quantity"] for r in list_stock(product_id=pid)
                                    if r["status"] == "Unrestricted")
-                if unrestricted <= weekly * lead_days / 7 * 1.4:
+                if unrestricted <= weekly * lead_days / 7 * 1.25:
                     on_order[pid] = (day + timedelta(days=lead_days), round(weekly * 4))
 
             # 7. Friday cycle counts: 5 random bins, a few with differences

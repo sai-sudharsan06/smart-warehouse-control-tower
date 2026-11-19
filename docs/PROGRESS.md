@@ -96,8 +96,8 @@ Module 1 close-out: process diagram (Draw.io) and screenshots in `docs/`.
 
 Route model update: front and rear cross-aisles. With only a front aisle,
 bin-code order was always already optimal (0 % saving in the demo data).
-With both, OR-Tools saves 4.9 % walking distance over 622 simulated pick
-lists in the demo data versus bin-code order (simulated layout, seed 42).
+With both, OR-Tools saves a few per cent walking distance versus bin-code
+order in the demo data (3.8 % with seed 42; simulated layout).
 
 ### Modules 9 and 10: Inventory Optimisation and Demand Forecasting (2026-11-19)
 - Weekly demand from goods issues over the last 26 weeks
@@ -116,11 +116,29 @@ lists in the demo data versus bin-code order (simulated layout, seed 42).
 - `scripts/seed_demo_data.py` simulates 26 weeks for the fictional AX Drives
   warehouse (14 products, 7 zones, 97 bins) into a separate database
   `data/demo_warehouse.db`, through the same business functions as the app
-- Seed 42 result: 622 orders shipped, 130 counts (inventory accuracy 86.2 %),
-  ledger check 0 differences. All figures are simulated.
+- Orders are picked from the next working day, with a picking capacity of
+  4-6 orders per day (urgent first), so some orders ship late
+- Seed 42 result: 616 orders (596 shipped, 9 cancelled), 88.8 % on time,
+  2.5 days average cycle time, 130 counts (inventory accuracy 90.0 %), route
+  saving 3.8 %, ledger check 0 differences. All figures are simulated.
 - `WAREHOUSE_DB` environment variable selects the database file
 
-Automated tests: 155.
+### Modules 11 and 12: Warehouse Analytics and Control Tower (2026-11-19)
+- KPIs: on-time shipping, order cycle time, open and overdue orders,
+  inventory accuracy, stock value by status, products to reorder, pending
+  approvals, route saving, ledger differences
+- Alerts for supervisors (ledger differences, overdue orders, pending counts,
+  reorder points, quarantined stock); they describe stock and orders, not people
+- Weekly trends: orders shipped, inventory accuracy
+- Power BI export: 9 CSV tables as a star schema (`scripts/export_power_bi.py`
+  or the button on the Control tower page); every measure cross-checked
+  against the app (identical on the seed-42 demo)
+- `docs/POWER_BI_GUIDE.md`: step-by-step report build (locale, model, DAX
+  measures, four pages) and a three-colour theme `docs/powerbi_theme.json`
+- Screen: Control tower (now the start page)
+- Not done yet: the Power BI report itself (to be built by hand, see guide)
+
+Automated tests: 162.
 
 ## Planned
 - **Visual design pass** (after the core modules work): a consistent
@@ -128,8 +146,8 @@ Automated tests: 155.
 
 ## Remaining modules
 5. Barcode labels (rest of Module 5)
-11. Warehouse Analytics
-12. Management Control Tower
+Power BI report (build following docs/POWER_BI_GUIDE.md)
+SAP MM / EWM practice exercises, demo video
 
 ## Known limitations
 - **No real login.** The "current user" is typed in the sidebar and is not

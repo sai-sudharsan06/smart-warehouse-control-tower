@@ -6,6 +6,15 @@ st.set_page_config(page_title="Smart Warehouse Control Tower", layout="wide")
 create_tables()
 
 page = st.navigation({
+    "Overview": [
+        st.Page(
+            "app_pages/control_tower.py",
+            title="Control tower",
+            icon=":material/dashboard:",
+            default=True,
+            help="KPIs, alerts and weekly trends across the warehouse, and the Power BI export.",
+        ),
+    ],
     "Master data": [
         st.Page(
             "app_pages/products.py",

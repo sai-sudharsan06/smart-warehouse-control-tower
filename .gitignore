@@ -13,3 +13,4 @@ data/*.db
 .vscode/
 Thumbs.db
 *.bkp
+exports/

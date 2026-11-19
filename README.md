@@ -16,6 +16,14 @@ validation and a recorded history.**
 
 ## What it does
 
+**Control tower** (start page)
+- KPIs for service (on-time shipping, cycle time, overdue orders), inventory
+  (accuracy, stock value, quarantined value, reorder needs) and process
+  (pending approvals, route saving, ledger differences).
+- Alerts that point to stock, bins and orders needing action, and weekly trends.
+- Export of nine CSV tables (star schema) for a Power BI report, with a
+  step-by-step guide in `docs/POWER_BI_GUIDE.md`.
+
 **Product master data**
 - Register products with category, unit of measure, unit cost, supplier and
   lead time. The system assigns each product a unique ID (`MAT-00001`).
@@ -93,9 +101,10 @@ python scripts/seed_demo_data.py
 $env:WAREHOUSE_DB = "data/demo_warehouse.db"; streamlit run app.py
 ```
 
-With seed 42: 622 orders shipped, 130 cycle counts with 86.2 % inventory
-accuracy, 0 ledger differences, and 4.9 % shorter picking routes than
-bin-code order. These are results of a simulation, not of a real warehouse.
+With seed 42: 616 orders (596 shipped, 88.8 % on time, 2.5 days average cycle
+time), 130 cycle counts with 90.0 % inventory accuracy, 0 ledger differences,
+and 3.8 % shorter picking routes than bin-code order. These are results of a
+simulation, not of a real warehouse.
 
 ## How it is built
 
@@ -109,7 +118,7 @@ bin-code order. These are results of a simulation, not of a real warehouse.
 - **Parameterised SQL queries** throughout, which protects against SQL injection.
 - **Business logic separated from the user interface.** The rules in
   `warehouse/` are tested without opening the app.
-- **155 automated tests** (pytest), run against a temporary database so real
+- **162 automated tests** (pytest), run against a temporary database so real
   data is never touched.
 
 ## Project structure
@@ -127,11 +136,13 @@ warehouse/
   orders.py                 customer orders, availability to promise, release
   picking.py                pick lists, OR-Tools route, picking, goods issue
   planning.py               demand, forecast, ABC, safety stock, ROP, EOQ
+  analytics.py              KPIs, alerts, trends, Power BI export
 scripts/
   seed_demo_data.py         26-week synthetic demo warehouse
+  export_power_bi.py        CSV export for the Power BI report
   labels.py                 readable dropdown labels
 tests/                      pytest tests on a temporary database
-docs/                       progress log and diagrams
+docs/                       progress log, diagrams, Power BI guide and theme
 ```
 
 ## Run it
@@ -161,4 +172,4 @@ python -m pytest -v
 
 ## Technology
 
-Python 3.13 · Streamlit · SQLite · Pandas · Google OR-Tools · Altair · pytest
+Python 3.13 · Streamlit · SQLite · Pandas · Google OR-Tools · Altair · pytest · Power BI (report guide)
