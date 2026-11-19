@@ -79,3 +79,20 @@ def add_product(name, category, unit_of_measure, unit_cost,
         raise
     finally:
         connection.close()
+
+
+def list_products():
+    """Return all products as a list of dictionaries, oldest first."""
+    connection = get_connection()
+    try:
+        rows = connection.execute(
+            """
+            SELECT product_id, name, category, unit_of_measure, unit_cost,
+                   supplier_name, lead_time_days, created_at
+            FROM products
+            ORDER BY product_id
+            """
+        ).fetchall()
+    finally:
+        connection.close()
+    return [dict(row) for row in rows]
