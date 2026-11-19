@@ -14,3 +14,4 @@ data/*.db
 Thumbs.db
 *.bkp
 exports/
+notes/
