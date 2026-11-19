@@ -144,4 +144,29 @@ def create_tables():
                 UNIQUE (order_id, product_id)
             )
         """)
+        connection.execute("""
+            CREATE TABLE IF NOT EXISTS pick_tasks (
+                task_id     INTEGER PRIMARY KEY AUTOINCREMENT,
+                order_id    INTEGER NOT NULL REFERENCES sales_orders (order_id),
+                line_id     INTEGER NOT NULL REFERENCES sales_order_lines (line_id),
+                product_id  INTEGER NOT NULL REFERENCES products (product_id),
+                bin_id      INTEGER NOT NULL REFERENCES storage_bins (bin_id),
+                quantity    REAL    NOT NULL CHECK (quantity > 0),
+                sequence    INTEGER NOT NULL,
+                status      TEXT    NOT NULL DEFAULT 'Open' CHECK (status IN ('Open', 'Picked')),
+                created_by  TEXT    NOT NULL,
+                created_at  TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                picked_by   TEXT,
+                picked_at   TEXT,
+                movement_id INTEGER REFERENCES stock_movements (movement_id)
+            )
+        """)
+        connection.execute("""
+            CREATE TABLE IF NOT EXISTS pick_routes (
+                order_id          INTEGER PRIMARY KEY REFERENCES sales_orders (order_id),
+                method            TEXT    NOT NULL,
+                distance_m        REAL    NOT NULL,
+                naive_distance_m  REAL    NOT NULL
+            )
+        """)
     connection.close()

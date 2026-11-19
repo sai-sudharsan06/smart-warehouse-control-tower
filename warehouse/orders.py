@@ -225,6 +225,10 @@ def cancel_order(order_id, user, reason):
     connection = get_connection()
     try:
         with connection:
+            # An open pick list is only a plan: remove it with the order.
+            connection.execute(
+                "DELETE FROM pick_tasks WHERE order_id = ? AND status = 'Open'", (order_id,))
+            connection.execute("DELETE FROM pick_routes WHERE order_id = ?", (order_id,))
             connection.execute(
                 """
                 UPDATE sales_orders SET status = 'Cancelled', closed_by = ?,

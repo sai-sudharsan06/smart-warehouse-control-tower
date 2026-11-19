@@ -47,6 +47,12 @@ page = st.navigation({
             icon=":material/receipt_long:",
             help="Create customer orders, check availability and release them for picking.",
         ),
+        st.Page(
+            "app_pages/picking.py",
+            title="Picking and shipping",
+            icon=":material/route:",
+            help="Pick lists with an optimised walking route, pick confirmation and goods issue.",
+        ),
     ],
 })
 

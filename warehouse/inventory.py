@@ -21,6 +21,7 @@ MOVEMENT_TYPES = {
     "GR": "Goods receipt",
     "PUTAWAY": "Putaway",
     "TRANSFER": "Bin to bin transfer",
+    "PICK": "Picking to shipping",
     "GI": "Goods issue",
     "ADJ_IN": "Count adjustment (+)",
     "ADJ_OUT": "Count adjustment (-)",

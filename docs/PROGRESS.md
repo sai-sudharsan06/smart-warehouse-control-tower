@@ -80,7 +80,21 @@ Module 1 close-out: process diagram (Draw.io) and screenshots in `docs/`.
   releases cannot promise the same stock
 - Screen: Customer orders (order lines entered in an editable table)
 
-Automated tests: 123.
+### Module 8: Picking and Route Optimisation (2026-11-19)
+- Pick lists for released orders: bins chosen Picking zone first, then the
+  bin with most stock; stock already planned for other open pick lists is
+  not allocated twice
+- Walking route optimised with Google OR-Tools (travelling salesman with a
+  depot) and compared with bin-code order; tests check that OR-Tools finds
+  the exact shortest route on small random cases (brute force)
+- Simplified layout model, stated on screen: one aisle per storage zone, a
+  front cross-aisle, 2.5 m per rack, level ignored. Distances are simulated.
+- Confirm picking moves stock to a Shipping bin (`PICK` movements); shipping
+  posts goods issue (`GI`) and closes the order
+- Cancelling an order deletes its open pick list
+- Screen: Picking and shipping (pick list, route chart, savings KPI)
+
+Automated tests: 140.
 
 ## Planned
 - **Visual design pass** (after the core modules work): a consistent
@@ -88,7 +102,6 @@ Automated tests: 123.
 
 ## Remaining modules
 5. Barcode labels (rest of Module 5)
-8. Picking and Route Optimisation
 9. Inventory Optimisation
 10. Demand Forecasting
 11. Warehouse Analytics
@@ -114,3 +127,5 @@ Automated tests: 123.
 - **Bin capacity is not modelled.** Putaway suggestions ignore size and weight.
 - **Partial delivery is not supported.** An order is released only when every
   line is fully available.
+- **Partial picking is not supported.** All tasks of a pick list are confirmed
+  together; one pick list per order (no batch picking of several orders).

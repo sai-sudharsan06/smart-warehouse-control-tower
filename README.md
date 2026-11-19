@@ -66,6 +66,13 @@ validation and a recorded history.**
 - Release reserves the stock only if every line is available, and names the
   shortage otherwise. Cancelling needs a reason and frees the reservation.
 
+**Picking and shipping**
+- Pick lists for released orders, taking stock from pick-face bins first.
+- The walking route is optimised with Google OR-Tools and compared with a
+  list sorted by bin code; distances come from a simplified, simulated layout.
+- Confirming the picks moves the stock to the shipping area; shipping posts
+  the goods issue and closes the order.
+
 ## How it is built
 
 - **Two layers of validation.** Python checks give the user clear messages,
@@ -78,7 +85,7 @@ validation and a recorded history.**
 - **Parameterised SQL queries** throughout, which protects against SQL injection.
 - **Business logic separated from the user interface.** The rules in
   `warehouse/` are tested without opening the app.
-- **123 automated tests** (pytest), run against a temporary database so real
+- **140 automated tests** (pytest), run against a temporary database so real
   data is never touched.
 
 ## Project structure
@@ -94,6 +101,7 @@ warehouse/
   receiving.py              goods receipts and putaway suggestions
   counts.py                 stock counts, tolerance, approvals, accuracy
   orders.py                 customer orders, availability to promise, release
+  picking.py                pick lists, OR-Tools route, picking, goods issue
   labels.py                 readable dropdown labels
 tests/                      pytest tests on a temporary database
 docs/                       progress log and diagrams
@@ -123,4 +131,4 @@ python -m pytest -v
 
 ## Technology
 
-Python 3.13 · Streamlit · SQLite · Pandas · pytest
+Python 3.13 · Streamlit · SQLite · Pandas · Google OR-Tools · Altair · pytest
