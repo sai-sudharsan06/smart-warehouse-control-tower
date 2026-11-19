@@ -63,4 +63,38 @@ def create_tables():
                 UNIQUE (zone_id, rack, level)
             )
         """)
+        connection.execute("""
+            CREATE TABLE IF NOT EXISTS stock (
+                product_id INTEGER NOT NULL REFERENCES products (product_id),
+                bin_id     INTEGER NOT NULL REFERENCES storage_bins (bin_id),
+                quantity   REAL    NOT NULL CHECK (quantity > 0),
+                PRIMARY KEY (product_id, bin_id)
+            )
+        """)
+        connection.execute("""
+            CREATE TABLE IF NOT EXISTS stock_movements (
+                movement_id   INTEGER PRIMARY KEY AUTOINCREMENT,
+                movement_type TEXT    NOT NULL,
+                product_id    INTEGER NOT NULL REFERENCES products (product_id),
+                from_bin_id   INTEGER REFERENCES storage_bins (bin_id),
+                to_bin_id     INTEGER REFERENCES storage_bins (bin_id),
+                quantity      REAL    NOT NULL CHECK (quantity > 0),
+                reason        TEXT,
+                reference     TEXT,
+                created_by    TEXT    NOT NULL,
+                created_at    TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                CHECK (from_bin_id IS NOT NULL OR to_bin_id IS NOT NULL)
+            )
+        """)
+        connection.execute("""
+            CREATE TABLE IF NOT EXISTS goods_receipts (
+                receipt_id    INTEGER PRIMARY KEY AUTOINCREMENT,
+                product_id    INTEGER NOT NULL REFERENCES products (product_id),
+                quantity      REAL    NOT NULL CHECK (quantity > 0),
+                delivery_note TEXT    NOT NULL,
+                to_bin_id     INTEGER NOT NULL REFERENCES storage_bins (bin_id),
+                received_by   TEXT    NOT NULL,
+                received_at   TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
     connection.close()

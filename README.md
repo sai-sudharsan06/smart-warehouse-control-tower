@@ -27,29 +27,56 @@ validation and a recorded history.**
 - Edit products, with a full change history: every changed field is recorded
   with its old value, new value, user and timestamp.
 
+**Warehouse structure**
+- Define zones by purpose: receiving, storage, picking, shipping, quarantine
+  and damaged goods.
+- Create storage bins one at a time or a whole rack and level range at once.
+  The system generates every bin code (`A-01-02` = zone A, rack 1, level 2),
+  so there are no hand-typed variants of the same location.
+
+**Goods receiving**
+- Post goods receipts against a delivery note, into a receiving bin, or
+  straight into quarantine or damaged goods if the delivery fails the check.
+- Put goods away with a suggested bin: one that already holds the product,
+  otherwise the first empty storage bin.
+
+**Inventory**
+- Stock per product and bin, with its status. Only stock in storage and
+  picking zones counts as available. Quarantined and damaged stock never does.
+- Move stock between bins by typing or scanning bin codes.
+- A movement ledger records every change with source bin, destination bin,
+  quantity, user and time.
+- A ledger check rebuilds all stock from the movements and reports any
+  difference, which would mean stock was changed without a movement.
+
 ## How it is built
 
 - **Two layers of validation.** Python checks give the user clear messages,
   and database constraints act as the last line of defence.
 - **Changes and their history are saved in one database transaction.** Either
   both are saved or neither is, so the history can never drift out of sync.
+- **Stock changes only through one function** that writes the movement and
+  the stock change together, and refuses negative stock, blocked bins and
+  moving more than is in a bin.
 - **Parameterised SQL queries** throughout, which protects against SQL injection.
 - **Business logic separated from the user interface.** The rules in
   `warehouse/` are tested without opening the app.
-- **32 automated tests** (pytest), run against a temporary database so real
+- **86 automated tests** (pytest), run against a temporary database so real
   data is never touched.
 
 ## Project structure
 
 ```
-app.py                      Streamlit user interface
+app.py                      entry point and navigation
+app_pages/                  one screen per business process
 warehouse/
   database.py               database connection and table definitions
-  products.py               validation, create, search, edit, change history
-tests/
-  conftest.py               temporary test database
-  test_products.py          validation tests
-  test_product_database.py  database tests
+  products.py               product validation, search, edit, change history
+  locations.py              zones, bins and bin codes
+  inventory.py              stock, movements, availability, ledger check
+  receiving.py              goods receipts and putaway suggestions
+  labels.py                 readable dropdown labels
+tests/                      pytest tests on a temporary database
 docs/                       progress log and diagrams
 ```
 
@@ -73,6 +100,7 @@ python -m pytest -v
 - There is no real login. The user name is typed in and not authenticated.
 - Unit cost is stored as a rounded floating-point number. Enterprise systems
   use exact decimal types for money.
+- Bin capacity (size, weight) is not modelled yet.
 
 ## Technology
 

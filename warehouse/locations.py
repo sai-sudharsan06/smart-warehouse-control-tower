@@ -195,3 +195,20 @@ def add_bins_bulk(zone_id, rack_from, rack_to, level_from, level_to):
         raise
     finally:
         connection.close()
+
+
+def find_bin(bin_code):
+    """Look up a bin by its code (as typed or scanned). Return a dict or None."""
+    connection = get_connection()
+    try:
+        row = connection.execute(
+            """
+            SELECT b.bin_id, b.bin_code, b.is_blocked, z.zone_code, z.zone_type
+            FROM storage_bins AS b JOIN zones AS z ON z.zone_id = b.zone_id
+            WHERE b.bin_code = ?
+            """,
+            (clean_text(bin_code or "").upper(),),
+        ).fetchone()
+    finally:
+        connection.close()
+    return dict(row) if row else None
