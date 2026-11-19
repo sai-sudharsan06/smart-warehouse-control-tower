@@ -1,6 +1,6 @@
 <mxfile host="Electron">
   <diagram name="Page-1" id="0EcJlQHV-L5VzZlcE04e">
-    <mxGraphModel dx="1839" dy="1118" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1030" dy="626" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -64,7 +64,7 @@
         <mxCell id="USayndFRsgu9omiDuYE1-24" edge="1" parent="1" source="USayndFRsgu9omiDuYE1-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;defaultLabelBackgroundColor=page;labelPadding=0 4;" target="USayndFRsgu9omiDuYE1-23">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="USayndFRsgu9omiDuYE1-25" connectable="0" parent="USayndFRsgu9omiDuYE1-24" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];inheritText=fontColor,fontStyle,textOpacity,labelBorderColor,labelBorderWidth,labelBackgroundColor,defaultLabelBackgroundColor,labelPadding;defaultLabelBackgroundColor=page;labelPadding=0 4;fontSize=18;fontFamily=Times New Roman;" value="[Show &quot;aleady exists&quot;]" vertex="1">
+        <mxCell id="USayndFRsgu9omiDuYE1-25" connectable="0" parent="USayndFRsgu9omiDuYE1-24" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];inheritText=fontColor,fontStyle,textOpacity,labelBorderColor,labelBorderWidth,labelBackgroundColor,defaultLabelBackgroundColor,labelPadding;defaultLabelBackgroundColor=page;labelPadding=0 4;fontSize=18;fontFamily=Times New Roman;" value="[Show &quot;already exists&quot;]" vertex="1">
           <mxGeometry relative="1" x="0.0118" y="2" as="geometry">
             <mxPoint x="-12" y="2" as="offset" />
           </mxGeometry>
@@ -72,7 +72,7 @@
         <mxCell id="USayndFRsgu9omiDuYE1-44" edge="1" parent="1" source="USayndFRsgu9omiDuYE1-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;defaultLabelBackgroundColor=page;labelPadding=0 4;" target="USayndFRsgu9omiDuYE1-43" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="USayndFRsgu9omiDuYE1-19" parent="1" style="rhombus;whiteSpace=wrap;html=1;shapeInside=1;fontSize=18;fontFamily=Times New Roman;" value="&lt;div&gt;&lt;/div&gt;Name already used by another product?&lt;table&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td&gt;&lt;strong&gt;&lt;/strong&gt;&lt;/td&gt;&lt;td&gt;al&lt;strong&gt;ready&lt;/strong&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;" vertex="1">
+        <mxCell id="USayndFRsgu9omiDuYE1-19" parent="1" style="rhombus;whiteSpace=wrap;html=1;shapeInside=1;fontSize=18;fontFamily=Times New Roman;" value="&lt;div&gt;&lt;/div&gt;Name already used by another product?" vertex="1">
           <mxGeometry height="110" width="240" x="40" y="520" as="geometry" />
         </mxCell>
         <mxCell id="USayndFRsgu9omiDuYE1-23" parent="1" style="rounded=1;whiteSpace=wrap;html=1;roundedPerimeter=1;" value="&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 18px;&quot;&gt;END&lt;/font&gt;&lt;div&gt;&lt;font face=&quot;Times New Roman&quot; style=&quot;font-size: 18px;&quot;&gt;(transaction rolled back)&lt;/font&gt;&lt;/div&gt;" vertex="1">
