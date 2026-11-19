@@ -81,18 +81,34 @@ def add_product(name, category, unit_of_measure, unit_cost,
         connection.close()
 
 
-def list_products():
-    """Return all products as a list of dictionaries, oldest first."""
+def list_products(search_text=""):
+    """Return products, oldest first.
+
+    If search_text is given, return only products whose product ID,
+    name, category or supplier contains it (not case-sensitive).
+    """
+    sql = """
+        SELECT product_id, name, category, unit_of_measure, unit_cost,
+               supplier_name, lead_time_days, created_at
+        FROM products
+    """
+    parameters = []
+
+    text = search_text.strip()
+    if text:
+        sql += """
+        WHERE printf('MAT-%05d', product_id) LIKE ?
+           OR name LIKE ?
+           OR category LIKE ?
+           OR supplier_name LIKE ?
+        """
+        parameters = [f"%{text}%"] * 4
+
+    sql += " ORDER BY product_id"
+
     connection = get_connection()
     try:
-        rows = connection.execute(
-            """
-            SELECT product_id, name, category, unit_of_measure, unit_cost,
-                   supplier_name, lead_time_days, created_at
-            FROM products
-            ORDER BY product_id
-            """
-        ).fetchall()
+        rows = connection.execute(sql, parameters).fetchall()
     finally:
         connection.close()
     return [dict(row) for row in rows]

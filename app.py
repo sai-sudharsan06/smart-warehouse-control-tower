@@ -45,7 +45,10 @@ if submitted:
 
 # ---- List all products ----
 st.subheader("Registered products")
-products = list_products()
+search_text = st.text_input(
+    "Search", placeholder="Product ID, name, category or supplier", key="search"
+)
+products = list_products(search_text)
 
 if products:
     table = pd.DataFrame(products)
@@ -61,5 +64,7 @@ if products:
         "created_at": "Created (UTC)",
     })
     st.dataframe(table, hide_index=True)
+elif search_text.strip():
+    st.info(f"No products match '{search_text.strip()}'.")
 else:
     st.info("No products registered yet.")

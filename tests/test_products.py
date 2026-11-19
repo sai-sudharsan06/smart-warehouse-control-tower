@@ -1,37 +1,59 @@
-from warehouse.products import format_product_id, validate_product
+import pytest
+
+from warehouse import database
+from warehouse.products import add_product, list_products
 
 
-def test_valid_product_has_no_errors():
-    errors = validate_product("Hex Bolt M8", "Spare Part", "EA", 0.25, "Schmidt GmbH", 5)
-    assert errors == []
+def add_sample_products():
+    add_product("Hex Bolt M8", "Spare Part", "EA", 0.249, "Schmidt GmbH", 5)
+    add_product("Pallet Wrap Film 500mm", "Packaging", "BOX", 18.90, "Verpackung Nord GmbH", 7)
+    add_product("Steel Sheet 2mm", "Raw Material", "KG", 1.35, "Schmidt GmbH", 14)
 
 
-def test_empty_name_is_rejected():
-    errors = validate_product("   ", "Spare Part", "EA", 0.25, "Schmidt GmbH", 5)
-    assert "Product name is required." in errors
+def test_tests_use_temporary_database(test_db):
+    assert database.DB_PATH.name == "test_warehouse.db"
 
 
-def test_negative_cost_is_rejected():
-    errors = validate_product("Hex Bolt M8", "Spare Part", "EA", -1, "Schmidt GmbH", 5)
-    assert "Unit cost cannot be negative." in errors
+def test_new_database_is_empty(test_db):
+    assert list_products() == []
 
 
-def test_unknown_category_is_rejected():
-    errors = validate_product("Hex Bolt M8", "Food", "EA", 0.25, "Schmidt GmbH", 5)
-    assert len(errors) == 1
+def test_added_products_are_listed_in_order(test_db):
+    add_sample_products()
+    products = list_products()
+    assert [p["product_id"] for p in products] == [1, 2, 3]
+    assert products[0]["unit_cost"] == 0.25  # rounded from 0.249
 
 
-def test_lead_time_limits():
-    assert "Lead time cannot be negative." in validate_product(
-        "Hex Bolt M8", "Spare Part", "EA", 0.25, "Schmidt GmbH", -1)
-    assert validate_product("Hex Bolt M8", "Spare Part", "EA", 0.25, "Schmidt GmbH", 365) == []
-    assert len(validate_product("Hex Bolt M8", "Spare Part", "EA", 0.25, "Schmidt GmbH", 366)) == 1
+def test_duplicate_name_is_rejected(test_db):
+    add_sample_products()
+    with pytest.raises(ValueError, match="already exists"):
+        add_product("HEX BOLT m8", "Spare Part", "EA", 1.00, "Other GmbH", 3)
+    assert len(list_products()) == 3
 
 
-def test_several_errors_reported_together():
-    errors = validate_product("", "Spare Part", "EA", -5, "", 5)
-    assert len(errors) == 3
+def test_search_by_name_ignores_capitals(test_db):
+    add_sample_products()
+    results = list_products("pallet")
+    assert [p["name"] for p in results] == ["Pallet Wrap Film 500mm"]
 
 
-def test_format_product_id():
-    assert format_product_id(7) == "MAT-00007"
+def test_search_by_supplier(test_db):
+    add_sample_products()
+    assert len(list_products("schmidt")) == 2
+
+
+def test_search_by_product_id(test_db):
+    add_sample_products()
+    results = list_products("MAT-00003")
+    assert [p["name"] for p in results] == ["Steel Sheet 2mm"]
+
+
+def test_search_with_no_match_returns_empty_list(test_db):
+    add_sample_products()
+    assert list_products("forklift") == []
+
+
+def test_blank_search_returns_everything(test_db):
+    add_sample_products()
+    assert len(list_products("   ")) == 3
