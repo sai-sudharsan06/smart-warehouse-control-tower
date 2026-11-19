@@ -137,10 +137,10 @@ warehouse/
   picking.py                pick lists, OR-Tools route, picking, goods issue
   planning.py               demand, forecast, ABC, safety stock, ROP, EOQ
   analytics.py              KPIs, alerts, trends, Power BI export
+  labels.py                 readable dropdown labels
 scripts/
   seed_demo_data.py         26-week synthetic demo warehouse
   export_power_bi.py        CSV export for the Power BI report
-  labels.py                 readable dropdown labels
 tests/                      pytest tests on a temporary database
 docs/                       progress log, diagrams, Power BI guide and theme
 ```
