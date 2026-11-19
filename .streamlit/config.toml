@@ -1,0 +1,34 @@
+# App design: three brand colours, one fixed light theme.
+#   Burgundy   #6C151E  buttons, links, active elements
+#   Dark green #0F3D3A  sidebar, table headers, first chart colour
+#   Cream      #F6DABF  sidebar text, widget and panel backgrounds (lighter tints)
+
+[theme]
+base = "light"
+primaryColor = "#6C151E"
+linkColor = "#6C151E"
+backgroundColor = "#FFFBF6"
+secondaryBackgroundColor = "#F8EADB"
+textColor = "#1E2624"
+borderColor = "#E6CFB5"
+baseRadius = "0.5rem"
+showSidebarBorder = false
+
+dataframeHeaderBackgroundColor = "#0F3D3A"
+dataframeHeaderTextColor = "#F6DABF"
+dataframeBorderColor = "#E6CFB5"
+
+# Charts: dark green and burgundy first, then muted variants that stay
+# readable on the cream background.
+chartCategoricalColors = ["#0F3D3A", "#6C151E", "#B9895A", "#4E8077", "#A4525A", "#8A7A68"]
+chartSequentialColors = ["#F6DABF", "#E3CCAE", "#C9B89A", "#A9A586", "#869173", "#637E64", "#456B58", "#2E5A4E", "#1C4A43", "#0F3D3A"]
+
+[theme.sidebar]
+backgroundColor = "#0F3D3A"
+secondaryBackgroundColor = "#1A4E4A"
+textColor = "#F6DABF"
+linkColor = "#F6DABF"
+borderColor = "#2E635E"
+primaryColor = "#F6DABF"
+codeBackgroundColor = "#1A4E4A"
+codeTextColor = "#F6DABF"

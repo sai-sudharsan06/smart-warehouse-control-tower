@@ -78,7 +78,7 @@ st.sidebar.text_input(
 )
 st.sidebar.caption("No real login yet. This name is recorded in the change history.")
 
-st.title("Smart warehouse control tower")
-st.caption("Prototype with synthetic data only. Not a production WMS.")
+st.caption("**Smart warehouse control tower** · Prototype with synthetic data only. "
+           "Not a production WMS.")
 
 page.run()

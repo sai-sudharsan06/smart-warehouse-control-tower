@@ -128,8 +128,8 @@ locale (step 1) and the column types (step 2) first.
 ## 6. Theme (three colours)
 
 View → Themes → **Browse for themes** → `docs/powerbi_theme.json`.
-Navy `#1F3A5F` for main values, teal `#2A9D8F` for good, amber `#E9A23B` for
-attention.
+The same three colours as the app: dark green `#0F3D3A` for main values,
+burgundy `#6C151E` for attention, cream `#F6DABF` (lighter tint as background).
 
 ## 7. Report pages
 

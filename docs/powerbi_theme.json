@@ -1,10 +1,10 @@
 {
   "name": "AX Drives Warehouse",
-  "dataColors": ["#1F3A5F", "#2A9D8F", "#E9A23B", "#7A8CA3", "#9FD3CB", "#F4D19B"],
-  "background": "#FFFFFF",
-  "foreground": "#1F2933",
-  "tableAccent": "#2A9D8F",
-  "good": "#2A9D8F",
-  "neutral": "#E9A23B",
-  "bad": "#C0392B"
+  "dataColors": ["#0F3D3A", "#6C151E", "#B9895A", "#4E8077", "#A4525A", "#8A7A68"],
+  "background": "#FFFBF6",
+  "foreground": "#1E2624",
+  "tableAccent": "#0F3D3A",
+  "good": "#0F3D3A",
+  "neutral": "#B9895A",
+  "bad": "#6C151E"
 }
