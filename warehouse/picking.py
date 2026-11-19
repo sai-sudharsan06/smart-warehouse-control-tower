@@ -1,9 +1,11 @@
 """Pick lists, walking-route optimisation, picking and shipping.
 
 Layout model (simplified, stated openly): every Storage or Picking zone is one
-aisle, ordered by zone code. Aisles branch off a front cross-aisle where the
-depot (shipping area) sits. Rack r lies r x RACK_WIDTH_M metres into its aisle.
-Pickers walk along aisles and the cross-aisle only (no shortcuts through racks).
+aisle, ordered by zone code. All aisles have the same length and connect a
+front cross-aisle (where the depot / shipping area sits) with a rear
+cross-aisle. Rack r lies r x RACK_WIDTH_M metres into its aisle. Pickers walk
+along aisles and cross-aisles only (no shortcuts through racks), so moving to
+another aisle goes via the front or the rear, whichever is shorter.
 Rack level (height) does not change walking distance.
 
 All distances are those of this simulated layout, not measured in a real hall.
@@ -19,7 +21,7 @@ from warehouse.orders import format_order_id, get_order, get_order_lines
 PICK_ZONE_TYPES = ("Picking", "Storage")
 RACK_WIDTH_M = 2.5
 AISLE_SPACING_M = 6.0
-SOLVER_TIME_LIMIT_S = 1
+SOLVER_TIME_LIMIT_MS = 1000  # search time per route; the demo generator lowers it
 
 
 # ---- Layout and distances ----
@@ -34,22 +36,41 @@ def _aisle_positions(connection):
     return {row["zone_id"]: (i + 1) * AISLE_SPACING_M for i, row in enumerate(rows)}
 
 
-def walking_distance(a, b):
+def aisle_length(connection):
+    """Length of every aisle: one rack width beyond the deepest rack in use."""
+    placeholders = ", ".join("?" for _ in PICK_ZONE_TYPES)
+    deepest = connection.execute(
+        f"""
+        SELECT COALESCE(MAX(b.rack), 0) FROM storage_bins AS b
+        JOIN zones AS z ON z.zone_id = b.zone_id WHERE z.zone_type IN ({placeholders})
+        """,
+        PICK_ZONE_TYPES,
+    ).fetchone()[0]
+    return (deepest + 1) * RACK_WIDTH_M
+
+
+def walking_distance(a, b, length=None):
     """Distance between two points (aisle_y, depth_x) in the aisle layout.
 
-    Same aisle: walk along it. Different aisles: walk out to the cross-aisle,
-    along it, and into the other aisle. The depot is (0, 0).
+    Same aisle: walk along it. Different aisles: walk to the front cross-aisle
+    (depth 0) or, if the layout has one, the rear cross-aisle (depth `length`),
+    whichever is shorter, along it, and into the other aisle. Depot = (0, 0).
     """
     (y1, x1), (y2, x2) = a, b
     if y1 == y2:
         return abs(x1 - x2)
-    return x1 + abs(y1 - y2) + x2
+    via_front = x1 + x2
+    if length is None:
+        return via_front + abs(y1 - y2)
+    via_rear = (length - x1) + (length - x2)
+    return min(via_front, via_rear) + abs(y1 - y2)
 
 
-def route_length(points):
+def route_length(points, length=None):
     """Length of a round trip depot -> points in order -> depot."""
     path = [(0.0, 0.0), *points, (0.0, 0.0)]
-    return round(sum(walking_distance(path[i], path[i + 1]) for i in range(len(path) - 1)), 1)
+    return round(sum(walking_distance(path[i], path[i + 1], length)
+                     for i in range(len(path) - 1)), 1)
 
 
 def naive_sequence(stops):
@@ -57,7 +78,7 @@ def naive_sequence(stops):
     return sorted(range(len(stops)), key=lambda i: stops[i]["bin_code"])
 
 
-def optimised_sequence(points):
+def optimised_sequence(points, length=None):
     """Shortest round trip found by OR-Tools (travelling salesman with a depot).
 
     Return the visiting order as indexes into `points`.
@@ -66,7 +87,8 @@ def optimised_sequence(points):
         return list(range(len(points)))
     nodes = [(0.0, 0.0), *points]
     # OR-Tools works with whole numbers: use decimetres.
-    matrix = [[int(round(walking_distance(a, b) * 10)) for b in nodes] for a in nodes]
+    matrix = [[int(round(walking_distance(a, b, length) * 10)) for b in nodes]
+              for a in nodes]
     manager = pywrapcp.RoutingIndexManager(len(nodes), 1, 0)
     routing = pywrapcp.RoutingModel(manager)
 
@@ -79,7 +101,7 @@ def optimised_sequence(points):
     params.first_solution_strategy = routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC
     params.local_search_metaheuristic = (
         routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH)
-    params.time_limit.seconds = SOLVER_TIME_LIMIT_S
+    params.time_limit.FromMilliseconds(SOLVER_TIME_LIMIT_MS)
     solution = routing.SolveWithParameters(params)
     if solution is None:
         raise RuntimeError("OR-Tools found no route.")
@@ -92,10 +114,10 @@ def optimised_sequence(points):
     return order
 
 
-def brute_force_sequence(points):
+def brute_force_sequence(points, length=None):
     """Exact shortest round trip by trying every order. Only for few stops (tests)."""
     best = min(permutations(range(len(points))),
-               key=lambda p: route_length([points[i] for i in p]))
+               key=lambda p: route_length([points[i] for i in p], length))
     return list(best)
 
 
@@ -162,6 +184,7 @@ def create_pick_list(order_id, user, optimise=True):
             ).fetchone():
                 raise ValueError(f"{format_order_id(order_id)} already has a pick list.")
             aisles = _aisle_positions(connection)
+            length = aisle_length(connection)
             stops = []
             for line in get_order_lines(order_id):
                 for pick in _allocate(connection, line["product_id"], line["quantity"], aisles):
@@ -169,9 +192,9 @@ def create_pick_list(order_id, user, optimise=True):
                                   "product_id": line["product_id"]})
             points = [s["point"] for s in stops]
             naive = naive_sequence(stops)
-            sequence = optimised_sequence(points) if optimise else naive
-            distance = route_length([points[i] for i in sequence])
-            naive_distance = route_length([points[i] for i in naive])
+            sequence = optimised_sequence(points, length) if optimise else naive
+            distance = route_length([points[i] for i in sequence], length)
+            naive_distance = route_length([points[i] for i in naive], length)
             for position, index in enumerate(sequence, start=1):
                 stop = stops[index]
                 connection.execute(

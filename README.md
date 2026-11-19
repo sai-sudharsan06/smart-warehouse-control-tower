@@ -73,6 +73,30 @@ validation and a recorded history.**
 - Confirming the picks moves the stock to the shipping area; shipping posts
   the goods issue and closes the order.
 
+**Inventory planning**
+- Weekly demand from goods issues, with a moving-average and an
+  exponential-smoothing forecast; the one with the lower error is used.
+- ABC analysis, safety stock, reorder point and economic order quantity,
+  with the service level set by ABC class.
+- Replenishment proposals for products at or below their reorder point. All
+  assumptions are shown on screen.
+
+## Demo data
+
+`scripts/seed_demo_data.py` simulates 26 weeks of a fictional warehouse
+(receipts, putaway, orders, picking, shipping, cycle counts and approvals)
+through the same functions the app uses. It writes a separate database and
+never touches your own data.
+
+```powershell
+python scripts/seed_demo_data.py
+$env:WAREHOUSE_DB = "data/demo_warehouse.db"; streamlit run app.py
+```
+
+With seed 42: 622 orders shipped, 130 cycle counts with 86.2 % inventory
+accuracy, 0 ledger differences, and 4.9 % shorter picking routes than
+bin-code order. These are results of a simulation, not of a real warehouse.
+
 ## How it is built
 
 - **Two layers of validation.** Python checks give the user clear messages,
@@ -85,7 +109,7 @@ validation and a recorded history.**
 - **Parameterised SQL queries** throughout, which protects against SQL injection.
 - **Business logic separated from the user interface.** The rules in
   `warehouse/` are tested without opening the app.
-- **140 automated tests** (pytest), run against a temporary database so real
+- **155 automated tests** (pytest), run against a temporary database so real
   data is never touched.
 
 ## Project structure
@@ -102,6 +126,9 @@ warehouse/
   counts.py                 stock counts, tolerance, approvals, accuracy
   orders.py                 customer orders, availability to promise, release
   picking.py                pick lists, OR-Tools route, picking, goods issue
+  planning.py               demand, forecast, ABC, safety stock, ROP, EOQ
+scripts/
+  seed_demo_data.py         26-week synthetic demo warehouse
   labels.py                 readable dropdown labels
 tests/                      pytest tests on a temporary database
 docs/                       progress log and diagrams
@@ -128,6 +155,9 @@ python -m pytest -v
 - Unit cost is stored as a rounded floating-point number. Enterprise systems
   use exact decimal types for money.
 - Bin capacity (size, weight) is not modelled yet.
+- Purchase orders are not modelled; replenishment is proposed, not ordered.
+- Walking distances use a simplified layout model (one aisle per zone, front
+  and rear cross-aisles).
 
 ## Technology
 

@@ -4,9 +4,11 @@ import streamlit as st
 
 from warehouse.labels import bin_labels
 from warehouse.orders import format_order_id, list_orders
+from warehouse.database import get_connection
 from warehouse.picking import (
     AISLE_SPACING_M,
     RACK_WIDTH_M,
+    aisle_length,
     confirm_picking,
     create_pick_list,
     get_pick_list,
@@ -20,8 +22,8 @@ current_user = st.session_state.current_user
 st.header("Picking and shipping")
 st.caption(
     "Pick lists for released orders, in an optimised walking sequence. Distances "
-    "come from a simplified layout model (one aisle per storage zone, a front "
-    "cross-aisle, 2.5 m per rack). They are simulated, not measured."
+    "come from a simplified layout model (one aisle per storage zone, front and "
+    "rear cross-aisles, 2.5 m per rack). They are simulated, not measured."
 )
 
 if "pick_message" in st.session_state:
@@ -50,11 +52,19 @@ def draw_route(tasks):
         rack = int(task["bin_code"].split("-")[1])
         points.append({"step": task["sequence"], "label": task["bin_code"],
                        "x": rack * RACK_WIDTH_M, "y": aisle_y[found["zone_code"]]})
-    # Walk: along the aisle to the front, along the cross-aisle, into the next aisle
+    connection = get_connection()
+    length = aisle_length(connection)
+    connection.close()
+    # Walk: along the aisle to the front or rear cross-aisle (whichever is
+    # shorter), along the cross-aisle, and into the next aisle
     path, step = [], 0
     for a, b in zip(points, points[1:] + [points[0]]):
-        for x, y in ([(a["x"], a["y"])] + ([] if a["y"] == b["y"] else
-                     [(0.0, a["y"]), (0.0, b["y"])]) + [(b["x"], b["y"])]):
+        corner = []
+        if a["y"] != b["y"]:
+            rear = (length - a["x"]) + (length - b["x"]) < a["x"] + b["x"]
+            cross = length if rear else 0.0
+            corner = [(cross, a["y"]), (cross, b["y"])]
+        for x, y in [(a["x"], a["y"]), *corner, (b["x"], b["y"])]:
             path.append({"x": x, "y": y, "order": step})
             step += 1
     base = alt.Chart(pd.DataFrame(path)).mark_line(strokeWidth=2).encode(

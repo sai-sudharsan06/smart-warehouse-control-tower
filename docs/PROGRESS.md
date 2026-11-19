@@ -94,7 +94,33 @@ Module 1 close-out: process diagram (Draw.io) and screenshots in `docs/`.
 - Cancelling an order deletes its open pick list
 - Screen: Picking and shipping (pick list, route chart, savings KPI)
 
-Automated tests: 140.
+Route model update: front and rear cross-aisles. With only a front aisle,
+bin-code order was always already optimal (0 % saving in the demo data).
+With both, OR-Tools saves 4.9 % walking distance over 622 simulated pick
+lists in the demo data versus bin-code order (simulated layout, seed 42).
+
+### Modules 9 and 10: Inventory Optimisation and Demand Forecasting (2026-11-19)
+- Weekly demand from goods issues over the last 26 weeks
+- Forecasts: 4-week moving average and exponential smoothing (alpha 0.3);
+  the method with the lower mean absolute error on the history is used
+- ABC analysis by annual consumption value (A up to 80 %, B up to 95 %)
+- Safety stock z x sigma x sqrt(LT), reorder point, EOQ; service level by
+  ABC class (98 / 95 / 90 %)
+- Replenishment proposals when inventory position is at or below the
+  reorder point (suggestions for a planner, not automatic orders)
+- Assumptions listed on screen (normal demand, fixed lead time, assumed
+  order and holding costs, no open purchase orders)
+- Screen: Inventory planning (proposals, ABC Pareto, demand and forecast)
+
+### Demo data (2026-11-19)
+- `scripts/seed_demo_data.py` simulates 26 weeks for the fictional AX Drives
+  warehouse (14 products, 7 zones, 97 bins) into a separate database
+  `data/demo_warehouse.db`, through the same business functions as the app
+- Seed 42 result: 622 orders shipped, 130 counts (inventory accuracy 86.2 %),
+  ledger check 0 differences. All figures are simulated.
+- `WAREHOUSE_DB` environment variable selects the database file
+
+Automated tests: 155.
 
 ## Planned
 - **Visual design pass** (after the core modules work): a consistent
@@ -102,8 +128,6 @@ Automated tests: 140.
 
 ## Remaining modules
 5. Barcode labels (rest of Module 5)
-9. Inventory Optimisation
-10. Demand Forecasting
 11. Warehouse Analytics
 12. Management Control Tower
 
@@ -129,3 +153,5 @@ Automated tests: 140.
   line is fully available.
 - **Partial picking is not supported.** All tasks of a pick list are confirmed
   together; one pick list per order (no batch picking of several orders).
+- **Purchase orders are not modelled.** The demo generator simulates suppliers
+  with its own simple reorder rule; the app only proposes quantities.

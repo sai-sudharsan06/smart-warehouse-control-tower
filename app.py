@@ -40,6 +40,14 @@ page = st.navigation({
             help="Blind stock counts, differences, approvals and inventory accuracy.",
         ),
     ],
+    "Planning": [
+        st.Page(
+            "app_pages/planning.py",
+            title="Inventory planning",
+            icon=":material/insights:",
+            help="ABC analysis, demand forecast, safety stock, reorder point and EOQ proposals.",
+        ),
+    ],
     "Outbound": [
         st.Page(
             "app_pages/orders.py",

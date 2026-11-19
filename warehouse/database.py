@@ -1,8 +1,13 @@
+import os
 import sqlite3
 from pathlib import Path
 
-# Location of the database file: <project folder>/data/warehouse.db
-DB_PATH = Path(__file__).resolve().parent.parent / "data" / "warehouse.db"
+# Location of the database file: <project folder>/data/warehouse.db, unless the
+# environment variable WAREHOUSE_DB names another file (used for the demo data).
+PROJECT_DIR = Path(__file__).resolve().parent.parent
+DB_PATH = Path(os.environ.get("WAREHOUSE_DB") or PROJECT_DIR / "data" / "warehouse.db")
+if not DB_PATH.is_absolute():
+    DB_PATH = PROJECT_DIR / DB_PATH
 
 
 def get_connection():

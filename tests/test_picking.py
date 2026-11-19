@@ -40,20 +40,40 @@ TODAY = date(2026, 11, 19)
 
 def test_walking_distance_same_aisle_and_other_aisle():
     assert walking_distance((6.0, 5.0), (6.0, 12.5)) == 7.5
-    # out of aisle 1 (5 m), along the cross-aisle (6 m), into aisle 2 (10 m)
+    # front cross-aisle only: out of aisle 1 (5 m), along (6 m), into aisle 2 (10 m)
     assert walking_distance((6.0, 5.0), (12.0, 10.0)) == 21.0
+
+
+def test_rear_cross_aisle_is_used_when_shorter():
+    # aisles 27.5 m long; both points deep in their aisles: via the rear
+    # (27.5-25) + (27.5-22.5) = 7.5 m plus 6 m along the cross-aisle
+    assert walking_distance((6.0, 25.0), (12.0, 22.5), length=27.5) == 13.5
+    # near the front, the front is still shorter
+    assert walking_distance((6.0, 5.0), (12.0, 10.0), length=27.5) == 21.0
 
 
 def test_route_length_is_a_round_trip_from_the_depot():
     assert route_length([(6.0, 5.0)]) == 22.0  # 11 m there, 11 m back
 
 
+def test_bin_code_order_loses_when_entering_an_aisle_from_the_rear():
+    # Stops A-09, B-02, B-09, C-02 (aisles at 6, 12, 18 m; racks 2.5 m; length 27.5 m)
+    a09, b02, b09, c02 = (6.0, 22.5), (12.0, 5.0), (12.0, 22.5), (18.0, 5.0)
+    # Bin-code order: 28.5 + 33.5 + 17.5 + 33.5 + 23 = 136 m
+    assert route_length([a09, b02, b09, c02], 27.5) == 136.0
+    # Better: A-09, rear to B-09, down to B-02, front to C-02:
+    # 28.5 + 16 + 17.5 + 16 + 23 = 101 m
+    assert route_length([a09, b09, b02, c02], 27.5) == 101.0
+    points = [a09, b02, b09, c02]
+    assert route_length([points[i] for i in optimised_sequence(points, 27.5)], 27.5) == 101.0
+
+
 @pytest.mark.parametrize("seed", range(5))
 def test_or_tools_finds_the_shortest_route_on_small_cases(seed):
     rng = random.Random(seed)
     points = [(rng.choice([6.0, 12.0, 18.0]), rng.randint(1, 10) * 2.5) for _ in range(6)]
-    best = route_length([points[i] for i in brute_force_sequence(points)])
-    found = route_length([points[i] for i in optimised_sequence(points)])
+    best = route_length([points[i] for i in brute_force_sequence(points, 27.5)], 27.5)
+    found = route_length([points[i] for i in optimised_sequence(points, 27.5)], 27.5)
     assert found == best
 
 
