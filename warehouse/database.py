@@ -97,4 +97,24 @@ def create_tables():
                 received_at   TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP
             )
         """)
+        connection.execute("""
+            CREATE TABLE IF NOT EXISTS stock_counts (
+                count_id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                product_id        INTEGER NOT NULL REFERENCES products (product_id),
+                bin_id            INTEGER NOT NULL REFERENCES storage_bins (bin_id),
+                system_quantity   REAL    NOT NULL CHECK (system_quantity >= 0),
+                counted_quantity  REAL    NOT NULL CHECK (counted_quantity >= 0),
+                difference        REAL    NOT NULL,
+                difference_value  REAL    NOT NULL,
+                reason            TEXT,
+                status            TEXT    NOT NULL CHECK (status IN
+                                  ('Matched', 'Pending approval', 'Adjusted', 'Rejected')),
+                counted_by        TEXT    NOT NULL,
+                counted_at        TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                decided_by        TEXT,
+                decided_at        TEXT,
+                decision_note     TEXT,
+                movement_id       INTEGER REFERENCES stock_movements (movement_id)
+            )
+        """)
     connection.close()

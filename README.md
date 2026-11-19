@@ -49,6 +49,16 @@ validation and a recorded history.**
 - A ledger check rebuilds all stock from the movements and reports any
   difference, which would mean stock was changed without a movement.
 
+**Stock counts and discrepancies**
+- Blind counts: the counter does not see the expected quantity.
+- Physical and system quantities are stored side by side. Every difference
+  needs a reason.
+- Small differences (within 5 % and 50 EUR) are adjusted automatically. Larger
+  ones need approval by a second person, who cannot be the counter.
+- Investigation hints point to records and processes to check (other bins,
+  unposted movements), never to people.
+- Inventory accuracy: the share of counts within tolerance.
+
 ## How it is built
 
 - **Two layers of validation.** Python checks give the user clear messages,
@@ -61,7 +71,7 @@ validation and a recorded history.**
 - **Parameterised SQL queries** throughout, which protects against SQL injection.
 - **Business logic separated from the user interface.** The rules in
   `warehouse/` are tested without opening the app.
-- **86 automated tests** (pytest), run against a temporary database so real
+- **106 automated tests** (pytest), run against a temporary database so real
   data is never touched.
 
 ## Project structure
@@ -75,6 +85,7 @@ warehouse/
   locations.py              zones, bins and bin codes
   inventory.py              stock, movements, availability, ledger check
   receiving.py              goods receipts and putaway suggestions
+  counts.py                 stock counts, tolerance, approvals, accuracy
   labels.py                 readable dropdown labels
 tests/                      pytest tests on a temporary database
 docs/                       progress log and diagrams

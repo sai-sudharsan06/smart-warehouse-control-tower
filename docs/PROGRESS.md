@@ -54,7 +54,22 @@ Module 1 close-out: process diagram (Draw.io) and screenshots in `docs/`.
 - Full movement ledger with filter by product
 - Not done: printing barcode labels
 
-Automated tests: 86.
+### Module 6: Stock Discrepancy Investigation (2026-11-19)
+- `stock_counts`: physical (counted) quantity stored next to the system
+  quantity at the time of the count, with difference in units and EUR
+- Blind count screen: the counter does not see the system quantity
+- A difference needs a reason from a fixed list
+- Tolerance: within 5 % and 50 EUR, adjusted automatically; otherwise
+  pending approval by a second person (four-eyes principle), with a
+  required decision note
+- Approval is refused if system stock changed since the count (recount)
+- Adjustments are ledger movements (`ADJ_IN`/`ADJ_OUT`, reference `CNT-00001`)
+- Investigation hints from the records (other bins holding the product,
+  recent movements, unposted steps). Hints never name or blame a person.
+- Inventory accuracy KPI: share of counts within tolerance
+- Screen: Stock counts
+
+Automated tests: 106.
 
 ## Planned
 - **Visual design pass** (after the core modules work): a consistent
@@ -62,7 +77,6 @@ Automated tests: 86.
 
 ## Remaining modules
 5. Barcode labels (rest of Module 5)
-6. Stock Discrepancy Investigation
 7. Order Management
 8. Picking and Route Optimisation
 9. Inventory Optimisation

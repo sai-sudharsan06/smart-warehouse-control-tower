@@ -33,6 +33,12 @@ page = st.navigation({
             icon=":material/shelves:",
             help="Stock per bin and status, bin-to-bin transfers and the movement ledger.",
         ),
+        st.Page(
+            "app_pages/stock_counts.py",
+            title="Stock counts",
+            icon=":material/fact_check:",
+            help="Blind stock counts, differences, approvals and inventory accuracy.",
+        ),
     ],
 })
 
