@@ -1,6 +1,14 @@
 import pytest
 
-from warehouse.locations import add_zone, list_zones, validate_zone
+from warehouse.locations import (
+    add_bin,
+    add_zone,
+    format_bin_code,
+    list_bins,
+    list_zones,
+    validate_bin,
+    validate_zone,
+)
 
 
 # ---- Zone validation (no database needed) ----
@@ -48,3 +56,61 @@ def test_zones_are_listed_by_code(test_db):
     add_zone("C", "Shipping dock", "Shipping")
     add_zone("A", "Bulk storage", "Storage")
     assert [z["zone_code"] for z in list_zones()] == ["A", "C"]
+
+
+    # ---- Bin codes and bin validation (no database needed) ----
+
+def test_bin_code_uses_two_digits():
+    assert format_bin_code("A", 1, 2) == "A-01-02"
+    assert format_bin_code("BUL", 12, 3) == "BUL-12-03"
+
+
+@pytest.mark.parametrize("rack, level", [(1, 1), (99, 99)])
+def test_bin_limits_are_allowed(rack, level):
+    assert validate_bin(rack, level) == []
+
+
+@pytest.mark.parametrize("rack, level", [(0, 1), (100, 1), (1, 0), (1, 100)])
+def test_bin_outside_limits_is_rejected(rack, level):
+    assert len(validate_bin(rack, level)) == 1
+
+
+# ---- Saving bins ----
+
+def test_add_bin_generates_code_from_zone(test_db):
+    zone_id = add_zone("A", "Bulk storage", "Storage")
+    assert add_bin(zone_id, 1, 2) == "A-01-02"
+    bin_row = list_bins()[0]
+    assert bin_row["zone_code"] == "A"
+    assert bin_row["zone_type"] == "Storage"
+    assert bin_row["is_blocked"] == 0
+
+
+def test_duplicate_bin_is_rejected(test_db):
+    zone_id = add_zone("A", "Bulk storage", "Storage")
+    add_bin(zone_id, 1, 2)
+    with pytest.raises(ValueError, match="Bin A-01-02 already exists"):
+        add_bin(zone_id, 1, 2)
+    assert len(list_bins()) == 1
+
+
+def test_bin_for_missing_zone_is_rejected(test_db):
+    with pytest.raises(ValueError, match="zone does not exist"):
+        add_bin(999, 1, 1)
+    assert list_bins() == []
+
+
+def test_same_position_is_allowed_in_different_zones(test_db):
+    zone_a = add_zone("A", "Bulk storage", "Storage")
+    zone_q = add_zone("Q", "Quarantine area", "Quarantine")
+    assert add_bin(zone_a, 1, 1) == "A-01-01"
+    assert add_bin(zone_q, 1, 1) == "Q-01-01"
+
+
+def test_bins_are_listed_in_code_order(test_db):
+    zone_id = add_zone("A", "Bulk storage", "Storage")
+    add_bin(zone_id, 1, 10)
+    add_bin(zone_id, 2, 1)
+    add_bin(zone_id, 1, 2)
+    codes = [b["bin_code"] for b in list_bins()]
+    assert codes == ["A-01-02", "A-01-10", "A-02-01"]

@@ -13,6 +13,8 @@ ZONE_TYPES = [
     "Damaged",
 ]
 MAX_ZONE_CODE_LENGTH = 3
+MAX_RACK = 99
+MAX_LEVEL = 99
 
 
 def validate_zone(zone_code, name, zone_type):
@@ -68,6 +70,72 @@ def list_zones():
             SELECT zone_id, zone_code, name, zone_type, created_at
             FROM zones
             ORDER BY zone_code
+            """
+        ).fetchall()
+    finally:
+        connection.close()
+    return [dict(row) for row in rows]
+
+
+def format_bin_code(zone_code, rack, level):
+    """Build a bin code such as A-01-02 from zone A, rack 1, level 2."""
+    return f"{zone_code}-{rack:02d}-{level:02d}"
+
+
+def validate_bin(rack, level):
+    """Check a bin position. Return a list of error messages (empty = valid)."""
+    errors = []
+    if not 1 <= rack <= MAX_RACK:
+        errors.append(f"Rack must be between 1 and {MAX_RACK}.")
+    if not 1 <= level <= MAX_LEVEL:
+        errors.append(f"Level must be between 1 and {MAX_LEVEL}.")
+    return errors
+
+
+def add_bin(zone_id, rack, level):
+    """Validate and save a new storage bin. Return its generated bin code."""
+    errors = validate_bin(rack, level)
+    if errors:
+        raise ValueError(" ".join(errors))
+
+    connection = get_connection()
+    try:
+        with connection:
+            zone = connection.execute(
+                "SELECT zone_code FROM zones WHERE zone_id = ?",
+                (zone_id,),
+            ).fetchone()
+            if zone is None:
+                raise ValueError("The selected zone does not exist.")
+
+            bin_code = format_bin_code(zone["zone_code"], rack, level)
+            connection.execute(
+                """
+                INSERT INTO storage_bins (zone_id, bin_code, rack, level)
+                VALUES (?, ?, ?, ?)
+                """,
+                (zone_id, bin_code, rack, level),
+            )
+        return bin_code
+    except sqlite3.IntegrityError as error:
+        if "UNIQUE" in str(error):
+            raise ValueError(f"Bin {bin_code} already exists.")
+        raise
+    finally:
+        connection.close()
+
+
+def list_bins():
+    """Return all storage bins with their zone code and type, sorted by bin code."""
+    connection = get_connection()
+    try:
+        rows = connection.execute(
+            """
+            SELECT b.bin_id, b.bin_code, z.zone_code, z.zone_type,
+                   b.rack, b.level, b.is_blocked, b.created_at
+            FROM storage_bins AS b
+            JOIN zones AS z ON z.zone_id = b.zone_id
+            ORDER BY b.bin_code
             """
         ).fetchall()
     finally:
