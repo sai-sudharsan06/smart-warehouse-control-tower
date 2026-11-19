@@ -9,6 +9,7 @@ def get_connection():
     """Open a connection to the SQLite database."""
     connection = sqlite3.connect(DB_PATH)
     connection.row_factory = sqlite3.Row
+    connection.execute("PRAGMA foreign_keys = ON")
     return connection
 
 
@@ -28,6 +29,17 @@ def create_tables():
                 is_active       INTEGER NOT NULL DEFAULT 1,
                 created_at      TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 updated_at      TEXT
+            )
+        """)
+        connection.execute("""
+            CREATE TABLE IF NOT EXISTS product_changes (
+                change_id  INTEGER PRIMARY KEY AUTOINCREMENT,
+                product_id INTEGER NOT NULL REFERENCES products (product_id),
+                field_name TEXT    NOT NULL,
+                old_value  TEXT,
+                new_value  TEXT,
+                changed_by TEXT    NOT NULL,
+                changed_at TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP
             )
         """)
     connection.close()

@@ -9,12 +9,18 @@ from warehouse.products import (
     add_product,
     format_product_id,
     get_product,
+    get_product_history,
     list_products,
     update_product,
 )
 
 st.set_page_config(page_title="Smart Warehouse Control Tower", layout="wide")
 create_tables()
+
+current_user = st.sidebar.text_input(
+    "Current user (simulated)", value="demo.user", key="current_user"
+)
+st.sidebar.caption("No real login yet. This name is recorded in the change history.")
 
 st.title("Smart warehouse control tower")
 st.caption("Prototype with synthetic data only. Not a production WMS.")
@@ -89,13 +95,27 @@ if all_products:
 
     if saved:
         try:
-            update_product(
+            changed_count = update_product(
                 selected_id, edit_name, edit_category, edit_uom,
-                edit_cost, edit_supplier, edit_lead_time,
+                edit_cost, edit_supplier, edit_lead_time, current_user,
             )
-            st.success(f"Product {format_product_id(selected_id)} updated.")
+            if changed_count == 0:
+                st.info("No changes to save.")
+            else:
+                st.success(
+                    f"Product {format_product_id(selected_id)} updated "
+                    f"({changed_count} field(s) changed)."
+                )
         except ValueError as error:
             st.error(str(error))
+
+    st.markdown(f"**Change history for {format_product_id(selected_id)}**")
+    history = get_product_history(selected_id)
+    if history:
+        st.dataframe(pd.DataFrame(history), hide_index=True)
+    else:
+        st.caption("No changes recorded yet.")
+
 else:
     st.info("Register a product first, then you can edit it here.")
 
