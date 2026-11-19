@@ -69,7 +69,18 @@ Module 1 close-out: process diagram (Draw.io) and screenshots in `docs/`.
 - Inventory accuracy KPI: share of counts within tolerance
 - Screen: Stock counts
 
-Automated tests: 106.
+### Module 7: Order Management (2026-11-19)
+- `sales_orders` (`SO-00001`, customer, requested date, priority, status) and
+  `sales_order_lines`
+- Status flow: Open, Released, Picked, Shipped, or Cancelled (with reason)
+- Availability to promise (ATP) = unrestricted stock minus quantity reserved
+  by released orders; quarantined and blocked stock is never promised
+- Release only if every line is available (no partial release); shortages
+  named per product; the release takes the database write lock so two
+  releases cannot promise the same stock
+- Screen: Customer orders (order lines entered in an editable table)
+
+Automated tests: 123.
 
 ## Planned
 - **Visual design pass** (after the core modules work): a consistent
@@ -77,7 +88,6 @@ Automated tests: 106.
 
 ## Remaining modules
 5. Barcode labels (rest of Module 5)
-7. Order Management
 8. Picking and Route Optimisation
 9. Inventory Optimisation
 10. Demand Forecasting
@@ -102,3 +112,5 @@ Automated tests: 106.
 - **After pulling new code, restart Streamlit** (Ctrl+C, then
   `streamlit run app.py`). A running server can keep old code in memory.
 - **Bin capacity is not modelled.** Putaway suggestions ignore size and weight.
+- **Partial delivery is not supported.** An order is released only when every
+  line is fully available.

@@ -40,6 +40,14 @@ page = st.navigation({
             help="Blind stock counts, differences, approvals and inventory accuracy.",
         ),
     ],
+    "Outbound": [
+        st.Page(
+            "app_pages/orders.py",
+            title="Customer orders",
+            icon=":material/receipt_long:",
+            help="Create customer orders, check availability and release them for picking.",
+        ),
+    ],
 })
 
 st.sidebar.text_input(

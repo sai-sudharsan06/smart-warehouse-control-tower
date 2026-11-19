@@ -59,6 +59,13 @@ validation and a recorded history.**
   unposted movements), never to people.
 - Inventory accuracy: the share of counts within tolerance.
 
+**Customer orders**
+- Orders with several lines, a requested date and a priority.
+- Availability to promise: unrestricted stock minus what released orders
+  already reserved. Quarantined and blocked stock is never promised.
+- Release reserves the stock only if every line is available, and names the
+  shortage otherwise. Cancelling needs a reason and frees the reservation.
+
 ## How it is built
 
 - **Two layers of validation.** Python checks give the user clear messages,
@@ -71,7 +78,7 @@ validation and a recorded history.**
 - **Parameterised SQL queries** throughout, which protects against SQL injection.
 - **Business logic separated from the user interface.** The rules in
   `warehouse/` are tested without opening the app.
-- **106 automated tests** (pytest), run against a temporary database so real
+- **123 automated tests** (pytest), run against a temporary database so real
   data is never touched.
 
 ## Project structure
@@ -86,6 +93,7 @@ warehouse/
   inventory.py              stock, movements, availability, ledger check
   receiving.py              goods receipts and putaway suggestions
   counts.py                 stock counts, tolerance, approvals, accuracy
+  orders.py                 customer orders, availability to promise, release
   labels.py                 readable dropdown labels
 tests/                      pytest tests on a temporary database
 docs/                       progress log and diagrams

@@ -117,4 +117,31 @@ def create_tables():
                 movement_id       INTEGER REFERENCES stock_movements (movement_id)
             )
         """)
+        connection.execute("""
+            CREATE TABLE IF NOT EXISTS sales_orders (
+                order_id       INTEGER PRIMARY KEY AUTOINCREMENT,
+                customer_name  TEXT    NOT NULL,
+                requested_date TEXT    NOT NULL,
+                priority       TEXT    NOT NULL CHECK (priority IN ('Normal', 'Urgent')),
+                status         TEXT    NOT NULL DEFAULT 'Open' CHECK (status IN
+                               ('Open', 'Released', 'Picked', 'Shipped', 'Cancelled')),
+                created_by     TEXT    NOT NULL,
+                created_at     TEXT    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                released_by    TEXT,
+                released_at    TEXT,
+                closed_by      TEXT,
+                closed_at      TEXT,
+                cancel_reason  TEXT
+            )
+        """)
+        connection.execute("""
+            CREATE TABLE IF NOT EXISTS sales_order_lines (
+                line_id         INTEGER PRIMARY KEY AUTOINCREMENT,
+                order_id        INTEGER NOT NULL REFERENCES sales_orders (order_id),
+                product_id      INTEGER NOT NULL REFERENCES products (product_id),
+                quantity        REAL    NOT NULL CHECK (quantity > 0),
+                picked_quantity REAL    NOT NULL DEFAULT 0 CHECK (picked_quantity >= 0),
+                UNIQUE (order_id, product_id)
+            )
+        """)
     connection.close()
