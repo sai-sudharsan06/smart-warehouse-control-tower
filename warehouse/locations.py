@@ -141,3 +141,57 @@ def list_bins():
     finally:
         connection.close()
     return [dict(row) for row in rows]
+
+MAX_BINS_PER_BULK = 500
+
+
+def add_bins_bulk(zone_id, rack_from, rack_to, level_from, level_to):
+    """Create every bin in a rack and level range in one transaction.
+
+    Either all bins are created or none (for example if one already exists).
+    Return the list of generated bin codes.
+    """
+    errors = validate_bin(rack_from, level_from) + validate_bin(rack_to, level_to)
+    if rack_from > rack_to:
+        errors.append("'Rack from' must not be greater than 'rack to'.")
+    if level_from > level_to:
+        errors.append("'Level from' must not be greater than 'level to'.")
+    if errors:
+        raise ValueError(" ".join(errors))
+
+    count = (rack_to - rack_from + 1) * (level_to - level_from + 1)
+    if count > MAX_BINS_PER_BULK:
+        raise ValueError(
+            f"That would create {count} bins. The limit is {MAX_BINS_PER_BULK} at once."
+        )
+
+    connection = get_connection()
+    try:
+        with connection:
+            zone = connection.execute(
+                "SELECT zone_code FROM zones WHERE zone_id = ?", (zone_id,)
+            ).fetchone()
+            if zone is None:
+                raise ValueError("The selected zone does not exist.")
+
+            codes = []
+            for rack in range(rack_from, rack_to + 1):
+                for level in range(level_from, level_to + 1):
+                    bin_code = format_bin_code(zone["zone_code"], rack, level)
+                    connection.execute(
+                        """
+                        INSERT INTO storage_bins (zone_id, bin_code, rack, level)
+                        VALUES (?, ?, ?, ?)
+                        """,
+                        (zone_id, bin_code, rack, level),
+                    )
+                    codes.append(bin_code)
+        return codes
+    except sqlite3.IntegrityError as error:
+        if "UNIQUE" in str(error):
+            raise ValueError(
+                f"Bin {bin_code} already exists. No bins were created."
+            )
+        raise
+    finally:
+        connection.close()

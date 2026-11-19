@@ -2,6 +2,7 @@ import pytest
 
 from warehouse.locations import (
     add_bin,
+    add_bins_bulk,
     add_zone,
     format_bin_code,
     list_bins,
@@ -58,7 +59,7 @@ def test_zones_are_listed_by_code(test_db):
     assert [z["zone_code"] for z in list_zones()] == ["A", "C"]
 
 
-    # ---- Bin codes and bin validation (no database needed) ----
+# ---- Bin codes and bin validation (no database needed) ----
 
 def test_bin_code_uses_two_digits():
     assert format_bin_code("A", 1, 2) == "A-01-02"
@@ -114,3 +115,32 @@ def test_bins_are_listed_in_code_order(test_db):
     add_bin(zone_id, 1, 2)
     codes = [b["bin_code"] for b in list_bins()]
     assert codes == ["A-01-02", "A-01-10", "A-02-01"]
+
+# ---- Creating many bins at once ----
+
+def test_bulk_creates_every_rack_and_level(test_db):
+    zone_id = add_zone("A", "Bulk storage", "Storage")
+    codes = add_bins_bulk(zone_id, 1, 2, 1, 3)
+    assert codes == ["A-01-01", "A-01-02", "A-01-03", "A-02-01", "A-02-02", "A-02-03"]
+    assert len(list_bins()) == 6
+
+
+def test_bulk_is_all_or_nothing(test_db):
+    zone_id = add_zone("A", "Bulk storage", "Storage")
+    add_bin(zone_id, 2, 2)
+    with pytest.raises(ValueError, match="A-02-02 already exists. No bins were created"):
+        add_bins_bulk(zone_id, 1, 3, 1, 3)
+    assert [b["bin_code"] for b in list_bins()] == ["A-02-02"]
+
+
+def test_bulk_rejects_reversed_range(test_db):
+    zone_id = add_zone("A", "Bulk storage", "Storage")
+    with pytest.raises(ValueError, match="'Rack from' must not be greater"):
+        add_bins_bulk(zone_id, 5, 1, 1, 1)
+
+
+def test_bulk_has_a_size_limit(test_db):
+    zone_id = add_zone("A", "Bulk storage", "Storage")
+    with pytest.raises(ValueError, match="limit is 500"):
+        add_bins_bulk(zone_id, 1, 99, 1, 99)
+    assert list_bins() == []
