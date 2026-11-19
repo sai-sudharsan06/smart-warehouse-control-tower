@@ -20,11 +20,20 @@
 - Automated tests: 32 (7 validation, 25 database), run against a temporary
   database so real data is never touched
 
+Module 1 close-out: process diagram (Draw.io) and screenshots in `docs/`.
+
 ## In progress
-- Module 1 close-out: process diagram (Draw.io), screenshots
+
+### Module 2: Warehouse Structure Management
+- Done: `zones` and `storage_bins` tables (foreign key to zones, unique
+  position per zone, rack and level 1-99), 4 constraint tests
+- Next: zone functions, bin functions with generated bin codes, screens
+
+## Planned
+- **Visual design pass** (after the core modules work): a consistent
+  three-colour theme for the Streamlit app, applied once at the end
 
 ## Remaining modules
-2. Warehouse Structure Management
 3. Inventory Management
 4. Goods Receiving
 5. Barcode and Movement Tracking
