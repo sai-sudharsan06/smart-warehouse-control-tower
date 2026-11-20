@@ -89,6 +89,21 @@ validation and a recorded history.**
 - Replenishment proposals for products at or below their reorder point. All
   assumptions are shown on screen.
 
+## Run it
+
+```powershell
+py -V:3.13 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+streamlit run app.py
+```
+
+Run the tests:
+
+```powershell
+python -m pytest -v
+```
+
 ## Demo data
 
 `scripts/seed_demo_data.py` simulates 26 weeks of a fictional warehouse
@@ -160,22 +175,7 @@ scripts/
   seed_demo_data.py         26-week synthetic demo warehouse
   export_power_bi.py        CSV export for the Power BI report
 tests/                      pytest tests on a temporary database
-docs/                       progress log, diagrams, Power BI guide and theme
-```
-
-## Run it
-
-```powershell
-py -V:3.13 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
-streamlit run app.py
-```
-
-Run the tests:
-
-```powershell
-python -m pytest -v
+docs/                       progress log, diagrams, Power BI guide, theme and report
 ```
 
 ## Limitations
