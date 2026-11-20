@@ -64,6 +64,12 @@ Select the new table → Table tools → **Mark as date table** → column `Date
 
 ## 4. Relationships (Model view)
 
+**First remove the automatic ones.** Power BI creates some relationships by
+itself when it loads the files, and it may link fact tables to
+`snapshot_planning` instead of `dim_product`. Open **Model view** (left bar,
+third icon), click each line between tables and press **Delete**, until no
+lines are left. Then create exactly the ones below.
+
 Drag a column onto the matching column in another table. All are one-to-many
 (1 on the dimension side), single direction.
 
@@ -154,13 +160,22 @@ burgundy `#6C151E` for attention, cream `#F6DABF` (lighter tint as background).
 - Table from snapshot_planning with dim_product[product_name]: abc_class,
   weekly_mean, safety_stock, reorder_point, inventory_position, reorder_now,
   proposed_quantity
-- Conditional formatting on `reorder_now` (amber when True)
+- Conditional formatting on `reorder_now`: Format → Cell elements →
+  Background color → rules → value is True → burgundy `#6C151E`, font white
 
 ## 8. Save and share
 
-Save as `docs/powerbi/warehouse_report.pbix`. Take a screenshot of each page
-into `docs/screenshots/` for the README. The `.pbix` file contains the data,
-which is synthetic, so committing it is fine.
+1. In File Explorer, create the folder `docs\powerbi` inside the project.
+2. Power BI: **File → Save as** → `docs\powerbi\warehouse_report.pbix`.
+3. **File → Export → Export to PDF** → `docs\powerbi\warehouse_report.pdf`
+   (anyone can open a PDF, also people without Power BI).
+4. Screenshot each page (Win+Shift+S, select the report canvas) and save as
+   `docs\powerbi\page1_overview.png`, `page2_inventory.png`,
+   `page3_accuracy.png`, `page4_replenishment.png`. Use exactly these
+   lower-case names: GitHub is case-sensitive.
+
+The `.pbix` file contains the data, which is synthetic, so committing it is
+fine.
 
 ## What to say in an interview
 
