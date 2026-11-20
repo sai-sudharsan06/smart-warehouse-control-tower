@@ -118,6 +118,4 @@ purchase orders and partial picking aren't modelled. Walking distances come
 from a simplified layout (one aisle per zone, front and rear cross-aisles),
 not from a real floor plan.
 
-Next up is production planning with SAP PP concepts, built on the same data.
-
 Python · Streamlit · SQLite · pandas · Google OR-Tools · pytest · Power BI
