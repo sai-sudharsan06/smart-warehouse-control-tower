@@ -116,19 +116,19 @@ Format the % measures as Percentage (Measure tools → Format).
 
 **Check your numbers.** Your cards must show the same values as the Control
 tower page of the app on the same database. For the demo data with seed 42
-(generated on 2026-11-19) that was:
+generated on 2026-11-20 (the data in `docs/powerbi/warehouse_report.pbix`):
 
 | Measure | Value |
 |---|---|
-| On-time % | 88.8 % |
-| Avg Cycle Days | 2.5 |
-| Inventory Accuracy % | 90.0 % |
-| Route Saving % | 3.8 % |
-| Stock Value EUR | 17,028.01 |
-| Products to Reorder | 7 |
+| On-time % | 95.02 % |
+| Avg Cycle Days | 1.87 |
+| Inventory Accuracy % | 91.54 % |
+| Route Saving % | 3.78 % |
+| Stock Value EUR | 14,956.30 |
+| Products to Reorder | 6 |
 
-The demo dates follow the day you generate it, so the reorder figures can
-differ slightly on another day. If Power BI differs from the app, check the
+The demo dates follow the day you generate it, so the figures differ on
+another day. If Power BI differs from the app, check the
 locale (step 1) and the column types (step 2) first.
 
 ## 6. Theme (three colours)

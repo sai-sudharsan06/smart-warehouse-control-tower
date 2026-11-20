@@ -101,10 +101,28 @@ python scripts/seed_demo_data.py
 $env:WAREHOUSE_DB = "data/demo_warehouse.db"; streamlit run app.py
 ```
 
-With seed 42: 616 orders (596 shipped, 88.8 % on time, 2.5 days average cycle
-time), 130 cycle counts with 90.0 % inventory accuracy, 0 ledger differences,
-and 3.8 % shorter picking routes than bin-code order. These are results of a
+Example run (seed 42, generated on 2026-11-20): 617 orders (602 shipped,
+95.0 % on time, 1.9 days average cycle time), 130 cycle counts with 91.5 %
+inventory accuracy, 0 ledger differences, and 3.8 % shorter picking routes
+than bin-code order. The simulated period ends on the day you run the script,
+so the figures differ slightly from run to run. These are results of a
 simulation, not of a real warehouse.
+
+## Power BI report
+
+A four-page management report built in Power BI Desktop on the exported demo
+data: overview, inventory, inventory accuracy and replenishment.
+[PDF](docs/powerbi/warehouse_report.pdf) ·
+[.pbix](docs/powerbi/warehouse_report.pbix) ·
+[how it was built](docs/POWER_BI_GUIDE.md)
+
+![Power BI overview page](docs/powerbi/page1_overview.png)
+
+| Inventory | Inventory accuracy |
+|---|---|
+| ![Power BI inventory page](docs/powerbi/page2_inventory.png) | ![Power BI inventory accuracy page](docs/powerbi/page3_accuracy.png) |
+
+The report's figures match the app's control tower on the same database.
 
 ## How it is built
 
@@ -172,4 +190,4 @@ python -m pytest -v
 
 ## Technology
 
-Python 3.13 · Streamlit · SQLite · Pandas · Google OR-Tools · Altair · pytest · Power BI (report guide)
+Python 3.13 · Streamlit · SQLite · Pandas · Google OR-Tools · Altair · pytest · Power BI

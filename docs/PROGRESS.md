@@ -136,7 +136,9 @@ order in the demo data (3.8 % with seed 42; simulated layout).
 - `docs/POWER_BI_GUIDE.md`: step-by-step report build (locale, model, DAX
   measures, four pages) and a three-colour theme `docs/powerbi_theme.json`
 - Screen: Control tower (now the start page)
-- Not done yet: the Power BI report itself (to be built by hand, see guide)
+- Power BI report built (2026-11-20): `docs/powerbi/warehouse_report.pbix`,
+  PDF export and page images; four pages (overview, inventory, inventory
+  accuracy, replenishment) in the three-colour theme, measures match the app
 
 Automated tests: 162.
 
@@ -146,7 +148,6 @@ Automated tests: 162.
 
 ## Remaining modules
 5. Barcode labels (rest of Module 5)
-Power BI report (build following docs/POWER_BI_GUIDE.md)
 SAP MM / EWM practice exercises, demo video
 
 ## Known limitations
