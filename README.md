@@ -4,6 +4,12 @@ A warehouse management prototype for a **fictional** German manufacturing and
 distribution company, built with Python, Streamlit and SQLite. All data is
 synthetic. This is a portfolio prototype, not a production-ready WMS.
 
+![Control tower: service, inventory and process KPIs](docs/Screenshots/app_control_tower.png)
+
+| Inventory planning (ABC analysis) | Picking route (OR-Tools) |
+|---|---|
+| ![Inventory planning screen with ABC Pareto chart](docs/Screenshots/app_inventory_planning.png) | ![Pick list with optimised walking route](docs/Screenshots/app_picking_route.png) |
+
 ## The problem
 
 In many warehouses, the stock in the system does not match the stock on the
